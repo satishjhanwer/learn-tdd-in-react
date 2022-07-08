@@ -12,7 +12,8 @@
     "web-vitals": "^2.1.0"
   },
   "scripts": {
-    "cypress": "cypress run",
+    "cypress": "cypress open",
+    "cypress-silent": "cypress run",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
