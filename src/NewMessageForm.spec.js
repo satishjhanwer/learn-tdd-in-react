@@ -1,28 +1,37 @@
-import {render, screen} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import NewMessageForm from './NewMessageForm';
+import React from "react";
+import { render, fireEvent, screen, waitFor } from "@testing-library/react";
+import NewMessageForm from "./NewMessageForm";
 
-describe('<NewMessageForm />', () => {
-    describe('clicking the send button', () => {
-        let sendHandler;
-        beforeEach(async () => {
-            sendHandler = jest.fn().mockName('sendHandler');
-            
-            render(<NewMessageForm onSend={sendHandler} />);
+describe("NewMessageForm", () => {
+  it("renders the input field and send button", () => {
+    const onSend = jest.fn();
+    render(<NewMessageForm onSend={onSend} />);
+    expect(screen.getByTestId("messageText")).toBeInTheDocument();
+    expect(screen.getByTestId("sendButton")).toBeInTheDocument();
+  });
 
-            await userEvent.type(
-                screen.getByTestId('messageText'),
-            'New message',
-            );
-            userEvent.click(screen.getByTestId('sendButton'));
-        });
+  it("calls the onSend callback with the input text when the send button is clicked", () => {
+    const onSend = jest.fn();
+    render(<NewMessageForm onSend={onSend} />);
+    const inputField = screen.getByTestId("messageText");
+    const sendButton = screen.getByTestId("sendButton");
 
-        it('clears the text field', () => {
-            expect(screen.getByTestId('messageText').value).toEqual('');
-        });
+    fireEvent.change(inputField, { target: { value: "Hello, World!" } });
+    fireEvent.click(sendButton);
 
-        it('calls the send handler', () => {
-            expect(sendHandler).toHaveBeenCalledWith('New message');
-        }); 
-    });
+    expect(onSend).toHaveBeenCalledTimes(1);
+    expect(onSend).toHaveBeenCalledWith("Hello, World!");
+  });
+
+  it("clears the input field after sending the message", async () => {
+    const onSend = jest.fn();
+    render(<NewMessageForm onSend={onSend} />);
+    const inputField = screen.getByTestId("messageText");
+    const sendButton = screen.getByTestId("sendButton");
+
+    fireEvent.change(inputField, { target: { value: "Hello, World!" } });
+    fireEvent.click(sendButton);
+
+    await waitFor(() => expect(inputField.value).toBe(""));
+  });
 });
